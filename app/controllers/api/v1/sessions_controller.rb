@@ -4,8 +4,11 @@ module Api
       skip_before_action :authenticate_user, only: [:create]
 
       def create
-        user = User.find_by(email: params[:email])
-        if user&.authenticate(params[:password])
+        email = params[:email] || params.dig(:session, :email)
+        password = params[:password] || params.dig(:session, :password)
+        
+        user = User.find_by(email: email)
+        if user&.authenticate(password)
           render json: {
             token: user.auth_token,
             user: {
